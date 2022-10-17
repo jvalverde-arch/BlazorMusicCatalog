@@ -1,0 +1,109 @@
+﻿
+@page "/albumAdd"
+@inject NavigationManager NavigationManager
+@*<h3>AlbumAdd</h3>*@
+
+@*Agregar componentes de Album*@
+@if(album == null)
+{
+    <p><em>Loading....</em></p>
+}
+
+@*Fin agregar componentes de album*@
+else
+{
+    <EditForm Model = "@album">
+        <table class="table">
+            <tr>
+                <td>Title</td>
+                <td><InputText class="form-control col-sm-5" @bind-Value="@album.Tittle" /></td>
+            </tr>
+            <tr>
+                <td>Description</td>
+                <td><InputText class="form-control col-sm-5" @bind-Value="@album.Description" /></td>
+            </tr>
+            <tr>
+                <td>Release Date</td>
+                <td><InputDate class="form-control col-sm-5" @bind-Value="@album.ReleaseDate" /></td>
+            </tr>
+
+            <tr>
+                <td>Author</td>
+                <td><InputText class="form-control col-sm-5" @bind-Value="@album.Author" /></td>
+            </tr>
+
+        </table>
+   
+
+        @* <button @onclick="AddSong"> Add Song</button>*@
+            <h3>Songs 
+                <button @onclick="AddSong"> +</button>
+            </h3>
+
+        @foreach (var song in album.Songs)
+        {
+            <SongBlock Song="song" OnSongChanged="UpdateAddSong"></SongBlock>
+        }
+        <table>
+            <tr>
+                <td colspan="2" style="text-align:center">
+                    <input type="submit" value="Save" @onclick="AlbumSave" />
+                    <input type="button" value="Cancel" @onclick="Cancel" />
+
+                </td>
+            </tr>
+        </table>
+    </EditForm>
+
+    @code {
+    public Album album = new Album()
+        {
+            Songs = new List<Song>()
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Album.Songs.Add(new Song());
+            album.Songs.Add(new Song() { Number = album.Songs.Count + 1 });
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+    public void AddSong()
+    {
+        album.Songs.Add(new Song() { Number = album.Songs.Count + 1 });
+
+    }
+    public async void UpdateAddSong(Song song)
+    {
+        //Consigo que miobjeto siempre esté actualizado
+        var songToUpdate = album.Songs.FirstOrDefault(s => s.Number == song.Number);
+        if (songToUpdate != null)
+        {
+            songToUpdate.Extension = song.Extension;
+            songToUpdate.Name = song.Name;
+            songToUpdate.Path = song.Path;
+
+        }
+    }
+    protected async Task AlbumSave()
+    {
+        //LLamar al servicio
+        var a = album.Songs;
+    }
+
+    public void Cancel()
+    {
+        NavigateHome();
+    }
+    public void NavigateHome()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}
+}
