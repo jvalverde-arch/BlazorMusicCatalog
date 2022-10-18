@@ -1,4 +1,5 @@
-﻿
+﻿@using System.IO
+
 <table class="table">
     <tr>
         <td>Name</td>
@@ -6,7 +7,7 @@
     </tr>
     <tr>
         <td>Upload</td>
-        <td><InputFile/></td>
+        <td><InputFile OnChange="LoadSong"/></td>
     </tr>
     <tr>
      
@@ -24,5 +25,21 @@
     async Task UpdateValueSong()
     {
         await OnSongChanged.InvokeAsync(Song);
+    }
+
+    async Task LoadSong(InputFileChangeEventArgs e)
+    {
+        var folderName = Path.Combine("wwwroot", "songs");
+        var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+        var fullPath = Path.Combine(pathToSave, e.File.Name.Replace(" ", "-"));
+
+        Song.Extension = e.File.Name.Substring(e.File.Name.Count() - 3, 3);
+        Song.Path = e.File.Name.Replace("", "-");
+
+        using (var ms = new MemoryStream())
+        {
+            await e.File.OpenReadStream().CopyToAsync(ms);
+            await File.WriteAllBytesAsync(fullPath, ms.ToArray());
+        }
     }
 }
